@@ -55,13 +55,7 @@ After redeploying in this sequence, all components will connect to ClickHouse wi
 
 After deploying the template, apply these changes for a stable setup.
 
-### 1. Remove deprecated feature gates from signoz-otel-collector (required — prevents crash)
-
-Railway dashboard → **signoz-otel-collector** → **Settings** → **Start Command**:
-
-Remove `-pkg.translator.prometheus.NormalizeName` from `--feature-gates`. If no other gates remain, remove the entire `--feature-gates` argument. This gate was promoted to stable in newer collector versions and can no longer be toggled.
-
-### 2. Set JWT secret (required — security)
+### 1. Set JWT secret (required — security)
 
 ```bash
 railway service signoz
@@ -70,7 +64,7 @@ railway variables set SIGNOZ_TOKENIZER_JWT_SECRET=$(openssl rand -hex 32)
 
 Without this, sessions are signed with an empty string — anyone can forge valid tokens.
 
-### 3. Rename deprecated env vars (recommended — removes warnings)
+### 2. Rename deprecated env vars (recommended — removes warnings)
 
 Railway dashboard → **signoz** → **Variables**:
 
@@ -81,7 +75,7 @@ Railway dashboard → **signoz** → **Variables**:
 
 Delete the old variables after adding the new ones.
 
-### 4. Complete initial setup (recommended — stops OpAmp errors)
+### 3. Complete initial setup (recommended — stops OpAmp errors)
 
 Open the SigNoz UI and create the first user/organization. Until this is done, the otel-collector logs repeated errors:
 
@@ -89,7 +83,7 @@ Open the SigNoz UI and create the first user/organization. Until this is done, t
 [ERRO] Failed to find or create agent error="cannot create agent without orgId"
 ```
 
-### 5. Keep schema migrators in sync with collector version (required — prevents data loss)
+### 4. Keep schema migrators in sync with collector version (required — prevents data loss)
 
 The schema migrators may be pinned to an older version while `signoz-otel-collector:latest` auto-updates. When the collector expects columns that the migrator never created, all traces, metrics, and logs are silently dropped.
 
