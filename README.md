@@ -51,6 +51,50 @@ If that happens, **redeploy these services after the migrator job completes**, i
 
 After redeploying in this sequence, all components will connect to ClickHouse with the correct schema and operate normally.
 
+## Post-Deploy Checklist
+
+After deploying the template, apply these changes for a stable setup.
+
+### 1. Remove deprecated feature gates from signoz-otel-collector (required — prevents crash)
+
+Railway dashboard → **signoz-otel-collector** → **Settings** → **Start Command**:
+
+Remove `-pkg.translator.prometheus.NormalizeName` from `--feature-gates`. If no other gates remain, remove the entire `--feature-gates` argument. This gate was promoted to stable in newer collector versions and can no longer be toggled.
+
+### 2. Set JWT secret (required — security)
+
+```bash
+railway service signoz
+railway variables set SIGNOZ_TOKENIZER_JWT_SECRET=$(openssl rand -hex 32)
+```
+
+Without this, sessions are signed with an empty string — anyone can forge valid tokens.
+
+### 3. Rename deprecated env vars (recommended — removes warnings)
+
+Railway dashboard → **signoz** → **Variables**:
+
+| Old (template default) | New | Value |
+|------------------------|-----|-------|
+| `TELEMETRY_ENABLED` | `SIGNOZ_ANALYTICS_ENABLED` | `true` |
+| `STORAGE` | `SIGNOZ_TELEMETRYSTORE_PROVIDER` | `clickhouse` |
+
+Delete the old variables after adding the new ones.
+
+### 4. Complete initial setup (recommended — stops OpAmp errors)
+
+Open the SigNoz UI and create the first user/organization. Until this is done, the otel-collector logs repeated errors:
+
+```
+[ERRO] Failed to find or create agent error="cannot create agent without orgId"
+```
+
+### 5. Keep schema migrators in sync with collector version (required — prevents data loss)
+
+The schema migrators may be pinned to an older version while `signoz-otel-collector:latest` auto-updates. When the collector expects columns that the migrator never created, all traces, metrics, and logs are silently dropped.
+
+If you see errors like `No such column resource in table signoz_traces.distributed_signoz_index_v3` in the collector logs, update both migrator images to a matching version from [Docker Hub](https://hub.docker.com/r/signoz/signoz-schema-migrator/tags), then redeploy in dependency order (migrators → signoz → otel-collector).
+
 ## Why Deploy
 
 Railway is a singular platform to deploy your infrastructure stack. Railway will host your infrastructure so you don't have to deal with configuration, while allowing you to vertically and horizontally scale it.
