@@ -83,11 +83,30 @@ Open the SigNoz UI and create the first user/organization. Until this is done, t
 [ERRO] Failed to find or create agent error="cannot create agent without orgId"
 ```
 
-### 4. Keep schema migrators in sync with collector version (required — prevents data loss)
+### 4. Keep all SigNoz images in sync (required — prevents data loss)
 
-The schema migrators may be pinned to an older version while `signoz-otel-collector:latest` auto-updates. When the collector expects columns that the migrator never created, all traces, metrics, and logs are silently dropped.
+All SigNoz Dockerfiles in this repo are pinned to specific versions. When upgrading, update all three in lockstep:
 
-If you see errors like `No such column resource in table signoz_traces.distributed_signoz_index_v3` in the collector logs, update both migrator images to a matching version from [Docker Hub](https://hub.docker.com/r/signoz/signoz-schema-migrator/tags), then redeploy in dependency order (migrators → signoz → otel-collector).
+| Component | Location | Docker Hub |
+|-----------|----------|------------|
+| signoz | `signoz/Dockerfile.signoz` | [signoz/signoz](https://hub.docker.com/r/signoz/signoz/tags) |
+| signoz-otel-collector | `signoz/Dockerfile.otel` | [signoz/signoz-otel-collector](https://hub.docker.com/r/signoz/signoz-otel-collector/tags) |
+| signoz-schema-migrator | Railway dashboard (Docker image) | [signoz/signoz-schema-migrator](https://hub.docker.com/r/signoz/signoz-schema-migrator/tags) |
+
+If you see errors like `No such column resource in table signoz_traces.distributed_signoz_index_v3` in the collector logs, update all images to matching versions and redeploy in dependency order (ClickHouse → migrators → signoz → otel-collector).
+
+### 5. Fix schema migrator start commands (required — prevents crash)
+
+The official SigNoz Railway template has a bug in the async migrator start command — it uses `tcp://[clickhouse]:9000` which is not valid Railway variable syntax. The `[clickhouse]` is passed as a literal string, causing a DSN parse error.
+
+Update both migrator start commands on the Railway dashboard:
+
+| Migrator | Start Command |
+|----------|--------------|
+| **sync** | `/bin/sh -c "sleep 120 && exec ./signoz-schema-migrator sync --dsn=tcp://${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}:9000 --up="` |
+| **async** | `./signoz-schema-migrator async --dsn=tcp://${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}:9000 --up=` |
+
+Also remove the `npm run migrate` pre-deploy command on both migrators — it's a leftover from the Railway template boilerplate and does nothing in a Go binary image.
 
 ## Why Deploy
 
