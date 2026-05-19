@@ -1,4 +1,4 @@
-FROM signoz/signoz-otel-collector:v0.144.2
+FROM signoz/signoz-otel-collector:v0.144.4
 
 COPY ./otel-collector-config.yaml /etc/otel-collector-config.yaml
 COPY signoz/otel-collector-opamp-config.yaml /etc/manager-config.yaml
