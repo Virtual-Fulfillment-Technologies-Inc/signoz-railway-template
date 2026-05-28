@@ -4,4 +4,4 @@ COPY ./otel-collector-config.yaml /etc/otel-collector-config.yaml
 COPY signoz/otel-collector-opamp-config.yaml /etc/manager-config.yaml
 
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["/signoz-otel-collector migrate sync check && exec /signoz-otel-collector --config=/etc/otel-collector-config.yaml --manager-config=/etc/manager-config.yaml --copy-path=/var/tmp/collector-config.yaml"]
+CMD ["sed -i \"s|__SIGNOZ_HOST__|${SIGNOZ_HOST:-signoz.railway.internal}|g\" /etc/manager-config.yaml && /signoz-otel-collector migrate sync check && exec /signoz-otel-collector --config=/etc/otel-collector-config.yaml --manager-config=/etc/manager-config.yaml --copy-path=/var/tmp/collector-config.yaml"]

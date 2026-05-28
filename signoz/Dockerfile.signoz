@@ -3,4 +3,5 @@ FROM signoz/signoz:v0.122.0
 COPY signoz/prometheus.yml /root/config/prometheus.yml
 COPY dashboards /root/config/dashboards
 
-CMD ["./signoz", "server"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["sed -i \"s|__CLICKHOUSE_HOST__|${CLICKHOUSE_HOST:-clickhouse.railway.internal}|g\" /root/config/prometheus.yml && exec ./signoz server"]

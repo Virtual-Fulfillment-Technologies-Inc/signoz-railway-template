@@ -46,6 +46,36 @@ Step-by-step guide for deploying SigNoz v0.122.0 on Railway using this template 
 - This repo connected to Railway (or forked to your GitHub)
 - A RabbitMQ instance (if using the RabbitMQ metrics receiver)
 
+## Hostname Configuration: How It Works
+
+This template **does not hardcode hostnames** in any config file. All inter-service hostnames are passed as environment variables, which makes the deployment portable across environments (prod, staging, etc.) with different service names.
+
+### Environment variables used for hostnames
+
+| Variable | Used by | How it's consumed |
+|---|---|---|
+| `ZOOKEEPER_HOST` | ClickHouse | `cluster.xml` reads it via `from_env="ZOOKEEPER_HOST"` |
+| `CLICKHOUSE_HOST` | otel-collector, signoz | `otel-collector-config.yaml` uses `${env:CLICKHOUSE_HOST}`. `prometheus.yml` is templated at container startup via `sed`. |
+| `SIGNOZ_HOST` | otel-collector | `otel-collector-opamp-config.yaml` is templated at container startup via `sed`. |
+
+### Railway reference variables
+
+The recommended way to set these is using Railway's reference variables, which dynamically resolve to whatever the target service is named in the current environment:
+
+```
+CLICKHOUSE_HOST=${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}
+ZOOKEEPER_HOST=${{zookeeper.RAILWAY_PRIVATE_DOMAIN}}
+SIGNOZ_HOST=${{signoz.RAILWAY_PRIVATE_DOMAIN}}
+```
+
+If your production environment uses different service names (e.g., `clickhouse-prod`), update the references:
+
+```
+CLICKHOUSE_HOST=${{clickhouse-prod.RAILWAY_PRIVATE_DOMAIN}}
+```
+
+This means **the same Dockerfile + config files work across all environments** — you only need to adjust env vars in the Railway dashboard.
+
 ## Step 1: Create the Railway Project
 
 Create a new project in Railway. All 5 services will live in this project.
@@ -85,9 +115,11 @@ Wait for ZooKeeper to be healthy before proceeding.
 5. **Environment variables**:
    ```
    CLICKHOUSE_SKIP_USER_SETUP=1
+   ZOOKEEPER_HOST=${{zookeeper.RAILWAY_PRIVATE_DOMAIN}}
    ```
+   `ZOOKEEPER_HOST` is read by `cluster.xml` via ClickHouse's `from_env` attribute. Using Railway's reference variable `${{zookeeper.RAILWAY_PRIVATE_DOMAIN}}` dynamically resolves to whatever the ZooKeeper service is named in the current environment.
 6. **Volume**: Mount a persistent volume at `/var/lib/clickhouse/`
-7. **Networking**: No public domain needed. Private hostname will be `clickhouse.railway.internal`
+7. **Networking**: No public domain needed.
 
 Wait for ClickHouse to be healthy. You can verify by checking logs for `Ready for connections`.
 
@@ -101,7 +133,7 @@ The migrator creates ClickHouse databases and runs schema migrations. It must co
 4. **Service name**: `signoz-migrator`
 5. **Environment variables**:
    ```
-   SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://clickhouse.railway.internal:9000
+   SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}:9000
    SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_CLUSTER=cluster
    SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_REPLICATION=true
    SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
@@ -122,11 +154,13 @@ If the migrator fails because ClickHouse isn't ready yet, **redeploy** the migra
 5. **Environment variables**:
    ```
    SIGNOZ_ALERTMANAGER_PROVIDER=signoz
-   SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN=tcp://clickhouse.railway.internal:9000
+   SIGNOZ_TELEMETRYSTORE_CLICKHOUSE_DSN=tcp://${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}:9000
    SIGNOZ_SQLSTORE_SQLITE_PATH=/var/lib/signoz/signoz.db
    SIGNOZ_TOKENIZER_JWT_SECRET=<generate-a-strong-secret>
+   CLICKHOUSE_HOST=${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}
    ```
-   **IMPORTANT**: Generate a real JWT secret (e.g., `openssl rand -hex 32`). Do not use `secret`.
+   - **IMPORTANT**: Generate a real JWT secret (e.g., `openssl rand -hex 32`). Do not use `secret`.
+   - `CLICKHOUSE_HOST` is used by `prometheus.yml` (templated at container startup) for the `remote_read` URL.
 6. **Volume**: Mount a persistent volume at `/var/lib/signoz/`
 7. **Public domain**: Enable — this is how you access the SigNoz dashboard
 8. **Port**: `8080`
@@ -141,15 +175,19 @@ If the migrator fails because ClickHouse isn't ready yet, **redeploy** the migra
    ```
    OTEL_RESOURCE_ATTRIBUTES=host.name=signoz-host,os.type=linux
    LOW_CARDINAL_EXCEPTION_GROUPING=false
-   SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://clickhouse.railway.internal:9000
+   SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN=tcp://${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}:9000
    SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_CLUSTER=cluster
    SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_REPLICATION=true
    SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
-   RABBITMQ_ENDPOINT=http://rabbitmq.railway.internal:15672
+   CLICKHOUSE_HOST=${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}
+   SIGNOZ_HOST=${{signoz.RAILWAY_PRIVATE_DOMAIN}}
+   RABBITMQ_ENDPOINT=http://${{rabbitmq.RAILWAY_PRIVATE_DOMAIN}}:15672
    RABBITMQ_USERNAME=<your-rabbitmq-username>
    RABBITMQ_PASSWORD=<your-rabbitmq-password>
    ```
-   If you are not using RabbitMQ monitoring, remove the `RABBITMQ_*` variables and edit `otel-collector-config.yaml` to remove the `rabbitmq` receiver and its reference in the `metrics` pipeline.
+   - `CLICKHOUSE_HOST` — used by `otel-collector-config.yaml` for all ClickHouse exporters (via `${env:CLICKHOUSE_HOST}`).
+   - `SIGNOZ_HOST` — used by the OpAMP manager config (templated at container startup via `sed`).
+   - `RABBITMQ_ENDPOINT` — RabbitMQ Management API URL (port 15672, NOT AMQP port 5672). Remove if not using RabbitMQ monitoring (and remove the `rabbitmq` receiver from `otel-collector-config.yaml`).
 6. **No volume** needed
 7. **Public domain**: Enable if you need external applications to send telemetry. Map port `4317` (gRPC) and/or `4318` (HTTP).
    For internal-only ingestion (apps in the same Railway project), use `otel-collector.railway.internal:4317` — no public domain needed.

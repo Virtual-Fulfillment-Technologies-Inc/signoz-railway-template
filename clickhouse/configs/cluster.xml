@@ -7,7 +7,7 @@
       -->
     <zookeeper>
         <node index="1">
-            <host>zookeeper.railway.internal</host>
+            <host from_env="ZOOKEEPER_HOST">zookeeper.railway.internal</host>
             <port>2181</port>
         </node>
         <!-- <node index="2">

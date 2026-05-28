@@ -1,1 +1,1 @@
-server_endpoint: ws://signoz.railway.internal:4320/v1/opamp
+server_endpoint: ws://__SIGNOZ_HOST__:4320/v1/opamp
