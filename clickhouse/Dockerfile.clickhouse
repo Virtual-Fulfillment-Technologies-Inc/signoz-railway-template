@@ -20,3 +20,6 @@ RUN set -eux; \
     tar -xvzf histogram-quantile.tar.gz; \
     mv histogram-quantile /var/lib/clickhouse/user_scripts/histogramQuantile; \
     rm histogram-quantile.tar.gz
+
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["sed -i \"s|__ZOOKEEPER_HOST__|${ZOOKEEPER_HOST:-zookeeper.railway.internal}|g\" /etc/clickhouse-server/config.d/cluster.xml && exec /entrypoint.sh"]
