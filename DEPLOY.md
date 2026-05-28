@@ -34,7 +34,7 @@ Step-by-step guide for deploying SigNoz v0.122.0 on Railway using this template 
 
 | # | Service Name | Repo Path / Image | Purpose |
 |---|---|---|---|
-| 1 | **zookeeper** | `zookeeper/Dockerfile.zookeeper` (from repo) | Distributed coordination for ClickHouse |
+| 1 | **zookeeper** | `signoz/zookeeper:3.7.1` (Docker image) | Distributed coordination for ClickHouse |
 | 2 | **clickhouse** | `clickhouse/Dockerfile.clickhouse` (from repo) | Columnar database for all telemetry data |
 | 3 | **signoz-migrator** | `signoz/Dockerfile.migrator` (from repo) | One-shot schema migration service |
 | 4 | **signoz** | `signoz/Dockerfile.signoz` (from repo) | Dashboard UI + query service + alertmanager |
@@ -52,22 +52,29 @@ Create a new project in Railway. All 5 services will live in this project.
 
 ## Step 2: Deploy ZooKeeper
 
-ZooKeeper is deployed from `zookeeper/Dockerfile.zookeeper`, which wraps the upstream `signoz/zookeeper:3.7.1` image to set `USER root`. This is required because Bitnami-based images default to user `1001`, which cannot write to Railway-mounted volumes (owned by root).
+ZooKeeper is deployed directly from the Docker image (no repo build needed).
 
-1. **Add service** > **GitHub Repo** > select this repository
-2. **Root directory**: `zookeeper`
-3. **Dockerfile path**: `Dockerfile.zookeeper`
-4. **Service name**: `zookeeper`
-5. **Environment variables**:
+1. **Add service** > **Docker Image** > `signoz/zookeeper:3.7.1`
+2. **Service name**: `zookeeper`
+3. **Environment variables**:
    ```
    ZOO_SERVER_ID=1
+   RAILWAY_RUN_UID=0
    ALLOW_ANONYMOUS_LOGIN=yes
    ZOO_AUTOPURGE_INTERVAL=1
+   ZOO_ENABLE_PROMETHEUS_METRICS=yes
+   ZOO_PROMETHEUS_METRICS_PORT_NUMBER=9141
    ```
-6. **Volume**: Mount a persistent volume at `/bitnami/zookeeper`
-7. **Networking**: No public domain needed. Private hostname will be `zookeeper.railway.internal`
+   **Why each variable matters:**
+   - `ZOO_SERVER_ID=1` — required, single-node ID
+   - `RAILWAY_RUN_UID=0` — **critical for volumes**. Runs the container as root so it can write to the Railway-mounted volume. Without this, you'll see `mkdir: cannot create directory '/bitnami/zookeeper/data': Permission denied` because the Bitnami image defaults to user `1001`.
+   - `ALLOW_ANONYMOUS_LOGIN=yes` — required; ClickHouse connects without auth
+   - `ZOO_AUTOPURGE_INTERVAL=1` — recommended; purges old transaction logs hourly to prevent disk bloat
+   - `ZOO_ENABLE_PROMETHEUS_METRICS=yes` + `ZOO_PROMETHEUS_METRICS_PORT_NUMBER=9141` — optional; exposes ZK's own Prometheus metrics on port 9141 (useful if you want to monitor ZooKeeper itself in SigNoz)
+4. **Volume**: Mount a persistent volume at `/bitnami/zookeeper`
+5. **Networking**: No public domain needed. Private hostname will be `zookeeper.railway.internal`
 
-Wait for ZooKeeper to be healthy before proceeding. If you see `mkdir: cannot create directory '/bitnami/zookeeper/data': Permission denied`, you're using the raw `signoz/zookeeper:3.7.1` image instead of the wrapped Dockerfile — switch to the repo's Dockerfile.
+Wait for ZooKeeper to be healthy before proceeding.
 
 ## Step 3: Deploy ClickHouse
 

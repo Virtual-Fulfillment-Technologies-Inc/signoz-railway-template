@@ -1,7 +1,0 @@
-FROM signoz/zookeeper:3.7.1
-
-# Bitnami-based images run as user 1001 by default, which cannot write to
-# Railway-mounted volumes (owned by root). Running as root lets the image's
-# entrypoint chown the data directory and operate normally. This matches the
-# upstream docker-compose which sets `user: root` for the same reason.
-USER root
