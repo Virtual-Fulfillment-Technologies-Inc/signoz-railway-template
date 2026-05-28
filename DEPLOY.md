@@ -181,13 +181,13 @@ If the migrator fails because ClickHouse isn't ready yet, **redeploy** the migra
    SIGNOZ_OTEL_COLLECTOR_TIMEOUT=10m
    CLICKHOUSE_HOST=${{clickhouse.RAILWAY_PRIVATE_DOMAIN}}
    SIGNOZ_HOST=${{signoz.RAILWAY_PRIVATE_DOMAIN}}
-   RABBITMQ_ENDPOINT=http://${{rabbitmq.RAILWAY_PRIVATE_DOMAIN}}:15672
-   RABBITMQ_USERNAME=<your-rabbitmq-username>
-   RABBITMQ_PASSWORD=<your-rabbitmq-password>
+   RABBITMQ_HOST=${{rabbitmq.RAILWAY_PRIVATE_DOMAIN}}
    ```
    - `CLICKHOUSE_HOST` — used by `otel-collector-config.yaml` for all ClickHouse exporters (via `${env:CLICKHOUSE_HOST}`).
    - `SIGNOZ_HOST` — used by the OpAMP manager config (templated at container startup via `sed`).
-   - `RABBITMQ_ENDPOINT` — RabbitMQ Management API URL (port 15672, NOT AMQP port 5672). Remove if not using RabbitMQ monitoring (and remove the `rabbitmq` receiver from `otel-collector-config.yaml`).
+   - `RABBITMQ_HOST` — hostname of your RabbitMQ service. The collector scrapes RabbitMQ's Prometheus plugin on port `15692` (not the AMQP port). Remove this and the `rabbitmq` scrape job from `otel-collector-config.yaml` if you're not using RabbitMQ monitoring.
+
+   **Why Prometheus instead of the OTel `rabbitmqreceiver`?** In RabbitMQ 4.x, the legacy Management API `/api/queues` endpoint only populates `message_stats` (publish/deliver/ack counts) for AMQP 0.9.1 connections, and per-queue stats can be silently disabled by various deprecated-feature gates. The Prometheus plugin (`/metrics/detailed`) reads directly from the queue process metrics and is protocol-agnostic — it works for AMQP 0.9.1, AMQP 1.0, MQTT, and STOMP traffic. It's the team's recommended path for 4.x.
 6. **No volume** needed
 7. **Public domain**: Enable if you need external applications to send telemetry. Map port `4317` (gRPC) and/or `4318` (HTTP).
    For internal-only ingestion (apps in the same Railway project), use `otel-collector.railway.internal:4317` — no public domain needed.

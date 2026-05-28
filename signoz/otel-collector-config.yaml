@@ -23,11 +23,25 @@ receivers:
               - localhost:8888
             labels:
               job_name: otel-collector
-  rabbitmq:
-    endpoint: ${env:RABBITMQ_ENDPOINT}
-    username: ${env:RABBITMQ_USERNAME}
-    password: ${env:RABBITMQ_PASSWORD}
-    collection_interval: 30s
+        - job_name: rabbitmq
+          scrape_interval: 30s
+          metrics_path: /metrics/detailed
+          params:
+            family:
+              - queue_coarse_metrics
+              - queue_metrics
+              - queue_consumer_count
+              - queue_delivery_metrics
+              - queue_exchange_metrics
+          static_configs:
+            - targets: ['${env:RABBITMQ_HOST:-rabbitmq.railway.internal}:15692']
+              labels:
+                job_name: rabbitmq
+          metric_relabel_configs:
+            - source_labels: [__name__]
+              regex: 'rabbitmq_detailed_(.+)'
+              target_label: __name__
+              replacement: 'rabbitmq_$1'
 processors:
   batch:
     send_batch_size: 10000
@@ -69,24 +83,24 @@ extensions:
     endpoint: 0.0.0.0:1777
 exporters:
   clickhousetraces:
-    datasource: tcp://${env:CLICKHOUSE_HOST}:9000/signoz_traces
+    datasource: tcp://${env:CLICKHOUSE_HOST:-clickhouse.railway.internal}:9000/signoz_traces
     low_cardinal_exception_grouping: ${env:LOW_CARDINAL_EXCEPTION_GROUPING}
     use_new_schema: true
   signozclickhousemetrics:
-    dsn: tcp://${env:CLICKHOUSE_HOST}:9000/signoz_metrics
+    dsn: tcp://${env:CLICKHOUSE_HOST:-clickhouse.railway.internal}:9000/signoz_metrics
   clickhouselogsexporter:
-    dsn: tcp://${env:CLICKHOUSE_HOST}:9000/signoz_logs
+    dsn: tcp://${env:CLICKHOUSE_HOST:-clickhouse.railway.internal}:9000/signoz_logs
     timeout: 10s
     use_new_schema: true
   signozclickhousemeter:
-    dsn: tcp://${env:CLICKHOUSE_HOST}:9000/signoz_meter
+    dsn: tcp://${env:CLICKHOUSE_HOST:-clickhouse.railway.internal}:9000/signoz_meter
     timeout: 45s
     sending_queue:
       enabled: false
   metadataexporter:
     cache:
       provider: in_memory
-    dsn: tcp://${env:CLICKHOUSE_HOST}:9000/signoz_metadata
+    dsn: tcp://${env:CLICKHOUSE_HOST:-clickhouse.railway.internal}:9000/signoz_metadata
     enabled: true
     timeout: 45s
 service:
@@ -102,7 +116,7 @@ service:
       processors: [signozspanmetrics/delta, batch]
       exporters: [clickhousetraces, metadataexporter, signozmeter]
     metrics:
-      receivers: [otlp, rabbitmq]
+      receivers: [otlp]
       processors: [batch]
       exporters: [signozclickhousemetrics, metadataexporter, signozmeter]
     metrics/prometheus:

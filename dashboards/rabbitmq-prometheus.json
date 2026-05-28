@@ -1,0 +1,628 @@
+{
+  "description": "RabbitMQ metrics scraped from the rabbitmq_prometheus plugin (/metrics/detailed endpoint on port 15692). Replaces the OTel rabbitmqreceiver-based dashboard for RabbitMQ 4.x compatibility (AMQP 0.9.1 and 1.0).",
+  "image": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE0Ljk0OTQgMTMuOTQyQzE2LjIzMTggMTIuNDI1OCAxNy4zMjY4IDkuNzAyMiAxNi4xOTU2IDYuNTc0ODdDMTUuNjQ0MyA1LjA1MjQ1IDE1LjAyMTkgNC4yMDI0OSAxNC4yOTY5IDMuNjYyNTJDMTMuODU1NyAzLjMzMzc5IDEyLjA5MzMgMi41MDYzMyA5Ljc1OTY1IDIuODY3NTZDOC4wNTM0OSAzLjEzMjU1IDUuNzc0ODcgNC4yMDg3NCA0LjI5MzY5IDUuOTU5OUMyLjg1NzUyIDcuNjYxMDYgMS43NDg4MyA5LjAwNDc0IDEuNjk3NTggMTAuMzA5N0MxLjYzMTMzIDExLjk4ODMgMi44OTYyNyAxMy40MzA4IDMuMDUwMDEgMTMuNjY0NUMzLjMyMzc0IDE0LjA3OTUgNS4xOTExNSAxNi40NTE4IDguNjk5NzEgMTYuNTczMUMxMS43OTcgMTYuNjc5MyAxMy44MTQ0IDE1LjI4NDQgMTQuOTQ5NCAxMy45NDJaIiBmaWxsPSIjNDAzRDNFIi8+CjxwYXRoIGQ9Ik00LjU1MzYzIDIuNzM3NDdDMi45Mzc0NiAzLjg5MTE2IDEuMTIxMzEgNi4yNTEwMyAxLjQ0NzU0IDkuNTYwODZDMS42MDYyOCAxMS4xNzIgMi4wMDI1MSAxMi4xNDk1IDIuNTcxMjMgMTIuODUwN0MyLjkxNzQ2IDEzLjI3ODIgNC40MTk4OCAxNC41NDkzIDYuNzczNTEgMTQuNzM2OEM5LjE0NTg4IDE0LjkyNTYgMTAuOTQ5NSAxNC4zOTQ0IDEyLjgzMzIgMTMuMDg0NEMxNi42NjE3IDEwLjQyMDggMTYuMDk4IDYuMzkzNTMgMTUuOTM0MyA1LjkyNDhDMTUuNzcwNSA1LjQ1NjA3IDE0LjU0NDQgMi42OTYyMiAxMS4xNzMzIDEuNzE1MDJDOC4xOTg0NCAwLjg1MDA2OCA1Ljk4MzU1IDEuNzE1MDIgNC41NTM2MyAyLjczNzQ3WiIgZmlsbD0iIzVFNjM2NyIvPgo8cGF0aCBkPSJNNy4zOTM1MyAyLjk2MTA5QzUuNjE3MzcgMi44OTczNCAzLjkxOTk2IDQuMjg4NTIgMy43NTYyMiA2LjAwNTkzQzMuNTkyNDggNy43MjIwOSA0LjY1NDkyIDkuMDI5NTIgNi4zMDk4MyA5LjI5NTc2QzcuOTY0NzUgOS41NjA3NCA5Ljg3ODM5IDguNTU1OCAxMC4yNjM0IDYuNDUwOTFDMTAuNjYwOSA0LjI4MjI3IDkuMDg5NjkgMy4wMjIzNCA3LjM5MzUzIDIuOTYxMDlaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNy45NDIxNyA1LjkwMTE1QzcuOTQyMTcgNS45MDExNSA4LjM2OTY1IDUuODEyNCA4LjQ1NDY1IDUuMTgyNDRDOC41MzgzOSA0LjU2MjQ3IDguMjMwOTEgNC4wMzM3NSA3LjUxMzQ1IDMuODQzNzZDNi43MzM0OSAzLjYzNzUyIDYuMjA0NzcgNC4wNjYyNSA2LjA2NzI3IDQuNTE3NDdDNS44NzYwMyA1LjE0NDk0IDYuMTU4NTIgNS40NDM2NyA2LjE1ODUyIDUuNDQzNjdDNi4xNTg1MiA1LjQ0MzY3IDUuMzkzNTYgNS42Mjc0MSA1LjMzMjMxIDYuNTI5ODdDNS4yNzQ4MSA3LjM4MTA3IDUuODU2MDMgNy44Mzg1NSA2LjQzOTc1IDcuOTc4NTRDNy4xNjA5NiA4LjE1MjI4IDcuOTc4NDIgNy45NTQ3OSA4LjE3ODQxIDcuMDM0ODRDOC4zNDQ2NSA2LjI3NzM4IDcuOTQyMTcgNS45MDExNSA3Ljk0MjE3IDUuOTAxMTVaIiBmaWxsPSIjMzAzMDMwIi8+CjxwYXRoIGQ9Ik02LjczOTgzIDQuNzUzNjJDNi42NzEwOSA1LjAxMjM1IDYuODA4NTggNS4yNjIzNCA3LjA3ODU3IDUuMzMxMDlDNy4zNjk4IDUuNDA0ODMgNy42MzQ3OSA1LjMwODU5IDcuNzA2MDMgNS4wMTExQzcuNzY4NTMgNC43NDczNyA3LjY0MzU0IDQuNTE0ODggNy4zMzYwNSA0LjQzOTg4QzcuMDgzNTcgNC4zNzczOSA2LjgxNDgzIDQuNDcxMTMgNi43Mzk4MyA0Ljc1MzYyWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTYuOTU5NzggNi4wMzk3NEM2LjYzMjMgNS45Mzg0OSA2LjE5OTgyIDYuMDY0NzMgNi4xMzEwNyA2LjUwNDcxQzYuMDYyMzMgNi45NDQ2OSA2LjMyNjA2IDcuMTY5NjggNi42NzEwNCA3LjIzMjE3QzcuMDE2MDMgNy4yOTQ2NyA3LjM0MjI2IDcuMTEzNDMgNy40MDYwMSA2Ljc2MDk1QzcuNDY4NSA2LjQwOTcyIDcuMjg2MDEgNi4xMzk3MyA2Ljk1OTc4IDYuMDM5NzRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K",
+  "layout": [
+    {"h": 8, "i": "p-overview", "moved": false, "static": false, "w": 12, "x": 0, "y": 0},
+    {"h": 6, "i": "p-published-top20", "moved": false, "static": false, "w": 6, "x": 0, "y": 8},
+    {"h": 6, "i": "p-published-all", "moved": false, "static": false, "w": 6, "x": 6, "y": 8},
+    {"h": 6, "i": "p-unack-graph", "moved": false, "static": false, "w": 6, "x": 0, "y": 14},
+    {"h": 6, "i": "p-unack-table", "moved": false, "static": false, "w": 6, "x": 6, "y": 14},
+    {"h": 6, "i": "p-acked-graph", "moved": false, "static": false, "w": 6, "x": 0, "y": 20},
+    {"h": 6, "i": "p-delivered-graph", "moved": false, "static": false, "w": 6, "x": 6, "y": 20}
+  ],
+  "name": "",
+  "panelMap": {},
+  "tags": ["rabbitmq", "prometheus", "queue"],
+  "title": "RabbitMQ Metrics (Prometheus)",
+  "uploadedGrafana": false,
+  "variables": {},
+  "version": "v4",
+  "widgets": [
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "columnWidths": {"A": 145, "B": 145, "C": 145, "D": 145, "queue": 200},
+      "customLegendColors": {},
+      "description": "Per-queue summary: published total, unack, ready, consumers.",
+      "fillSpans": false,
+      "id": "p-overview",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "table",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_published_total--float64--Sum--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_published_total",
+                "type": "Sum"
+              },
+              "aggregateOperator": "increase",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "published",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "increase"
+            },
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_unacked--float64--Gauge--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_unacked",
+                "type": "Gauge"
+              },
+              "aggregateOperator": "max",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "B",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "unack",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "B",
+              "reduceTo": "last",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "max"
+            },
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_ready--float64--Gauge--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_ready",
+                "type": "Gauge"
+              },
+              "aggregateOperator": "max",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "C",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "ready",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "C",
+              "reduceTo": "last",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "max"
+            },
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_consumers--float64--Gauge--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_consumers",
+                "type": "Gauge"
+              },
+              "aggregateOperator": "max",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "D",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "consumers",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "D",
+              "reduceTo": "last",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "max"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-overview-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Queues overview",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "customLegendColors": {},
+      "description": "Top queues by published message count.",
+      "fillSpans": false,
+      "id": "p-published-top20",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "graph",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_published_total--float64--Sum--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_published_total",
+                "type": "Sum"
+              },
+              "aggregateOperator": "increase",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "{{queue}}",
+              "limit": 20,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "increase"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-published-top20-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Queue Published Messages (top 20)",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "columnWidths": {"A": 145, "queue": 200},
+      "customLegendColors": {},
+      "description": "Total published messages per queue.",
+      "fillSpans": false,
+      "id": "p-published-all",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "table",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_published_total--float64--Sum--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_published_total",
+                "type": "Sum"
+              },
+              "aggregateOperator": "increase",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "Total",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "increase"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-published-all-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Published Messages (all)",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "customLegendColors": {},
+      "description": "Unacknowledged messages per queue over time.",
+      "fillSpans": false,
+      "id": "p-unack-graph",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "graph",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_unacked--float64--Gauge--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_unacked",
+                "type": "Gauge"
+              },
+              "aggregateOperator": "max",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "{{queue}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "max"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-unack-graph-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Unack Messages By Queue",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "columnWidths": {"A": 145, "queue": 200},
+      "customLegendColors": {},
+      "description": "Current unacknowledged messages per queue.",
+      "fillSpans": false,
+      "id": "p-unack-table",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "table",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_unacked--float64--Gauge--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_unacked",
+                "type": "Gauge"
+              },
+              "aggregateOperator": "max",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "Count",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "last",
+              "spaceAggregation": "avg",
+              "stepInterval": 60,
+              "timeAggregation": "max"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-unack-table-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Current Unack Messages By Queue",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "customLegendColors": {},
+      "description": "Acknowledged messages per queue over time.",
+      "fillSpans": false,
+      "id": "p-acked-graph",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "graph",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_acked_total--float64--Sum--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_acked_total",
+                "type": "Sum"
+              },
+              "aggregateOperator": "increase",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "{{queue}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "increase"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-acked-graph-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Messages Acknowledged",
+      "yAxisUnit": "none"
+    },
+    {
+      "bucketCount": 30,
+      "bucketWidth": 0,
+      "columnUnits": {},
+      "customLegendColors": {},
+      "description": "Delivered messages per queue over time.",
+      "fillSpans": false,
+      "id": "p-delivered-graph",
+      "isLogScale": false,
+      "isStacked": false,
+      "legendPosition": "bottom",
+      "mergeAllActiveQueries": false,
+      "nullZeroValues": "zero",
+      "opacity": "1",
+      "panelTypes": "graph",
+      "query": {
+        "builder": {
+          "queryData": [
+            {
+              "aggregateAttribute": {
+                "dataType": "float64",
+                "id": "rabbitmq_queue_messages_delivered_total--float64--Sum--true",
+                "isColumn": true,
+                "isJSON": false,
+                "key": "rabbitmq_queue_messages_delivered_total",
+                "type": "Sum"
+              },
+              "aggregateOperator": "increase",
+              "dataSource": "metrics",
+              "disabled": false,
+              "expression": "A",
+              "filters": {"items": [], "op": "AND"},
+              "functions": [],
+              "groupBy": [
+                {
+                  "dataType": "string",
+                  "id": "queue--string--tag--false",
+                  "isColumn": false,
+                  "isJSON": false,
+                  "key": "queue",
+                  "type": "tag"
+                }
+              ],
+              "having": [],
+              "legend": "{{queue}}",
+              "limit": null,
+              "orderBy": [],
+              "queryName": "A",
+              "reduceTo": "sum",
+              "spaceAggregation": "sum",
+              "stepInterval": 60,
+              "timeAggregation": "increase"
+            }
+          ],
+          "queryFormulas": []
+        },
+        "clickhouse_sql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "id": "p-delivered-graph-query",
+        "promql": [{"disabled": false, "legend": "", "name": "A", "query": ""}],
+        "queryType": "builder"
+      },
+      "selectedLogFields": [],
+      "selectedTracesFields": [],
+      "softMax": 0,
+      "softMin": 0,
+      "stackedBarChart": false,
+      "thresholds": [],
+      "timePreferance": "GLOBAL_TIME",
+      "title": "Messages Delivered",
+      "yAxisUnit": "none"
+    }
+  ],
+  "uuid": ""
+}
